@@ -11,6 +11,8 @@ import 'firebase/auth';
 //firebase hooks
 import {useAuthState} from 'react-firebase-hooks/auth';
 import {useCollectionData} from 'react-firebase-hooks/firestore';
+import { func } from 'prop-types';
+import { message } from 'statuses';
 
 
 firebase.initializeApp({
@@ -49,8 +51,49 @@ function SignIn(){
   return(
     <button onClick = {signInWithGoogle}>Sign In with Google</button>
   )
-
 }
+
+
+function SignOut(){
+  return auth.currentUser && (
+    <button onClick = {() => auth.signOut()}>Sign out</button>
+  )
+}
+
+function ChatRoom(){
+
+  const messagesRef = firestore.collection('messages');
+  const query = messagesRef.orderBy('createdAt').limit(25);
+  const [messages] = useCollectionData(query,{idField: 'id'});
+
+  return(
+    <>
+      <div>
+        {messages && messages.map(msg => <ChatMessage key = {msg.id} message = {msg}/>)}
+      </div>
+      <form>
+        <input/>
+        <button type"submit">Send</button>
+      </form>
+    </>
+  )
+}
+
+function ChatMessage(props){
+  const {text,uid,photoURL} = props.message;
+
+  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received' ;
+
+  return (
+    <div className = {`message ${messageClass}`}>
+      <img src={photoURL}/>
+
+
+      <p>{text}</p>
+    </div>
+  )
+}
+
 
 
 export default App;
