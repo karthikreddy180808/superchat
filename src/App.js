@@ -9,12 +9,13 @@ import 'firebase/auth';
 
 
 //firebase hooks
-import {useAuthState} from 'react-firebase-hooks/auth';
-import {useCollectionData} from 'react-firebase-hooks/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { func } from 'prop-types';
 import { message } from 'statuses';
 
 
+// // Karthik
 firebase.initializeApp({
   apiKey: "AIzaSyD2Td9DuvEUTDaDLf64at6Nje6npyAtChs",
   authDomain: "realtimechat-ff388.firebaseapp.com",
@@ -25,6 +26,19 @@ firebase.initializeApp({
   measurementId: "G-JZYS31E7CN"
 })
 
+
+// // Saish
+// firebase.initializeApp({
+//   apiKey: "AIzaSyBI8vGjaTjo02Iq2V36-PIemZdveqGds6g",
+//   authDomain: "super-duper-chat-9db4f.firebaseapp.com",
+//   projectId: "super-duper-chat-9db4f",
+//   storageBucket: "super-duper-chat-9db4f.appspot.com",
+//   messagingSenderId: "294241362011",
+//   appId: "1:294241362011:web:6b432ccce24b6410cc5f7e",
+//   measurementId: "G-RVLX8DNFDJ"
+// });
+
+
 const auth = firebase.auth();
 const firestore = firebase.firestore();
 
@@ -34,45 +48,48 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header"></header>
+      <header className="App-header">
+        <h1>⚛️🔥💬</h1>
+        <SignOut />
+      </header>
       <section>
-        {user ? <ChatRoom/> : <SignIn/>}
+        {user ? <ChatRoom /> : <SignIn />}
       </section>
 
     </div>
   );
 }
 
-function SignIn(){
+function SignIn() {
   const signInWithGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider);
   }
-  return(
-    <button onClick = {signInWithGoogle}>Sign In with Google</button>
+  return (
+    <button onClick={signInWithGoogle}>Sign In with Google</button>
   )
 }
 
 
-function SignOut(){
+function SignOut() {
   return auth.currentUser && (
-    <button onClick = {() => auth.signOut()}>Sign out</button>
+    <button onClick={() => auth.signOut()}>Sign out</button>
   )
 }
 
-function ChatRoom(){
+function ChatRoom() {
 
   const dummy = useRef();
 
   const messagesRef = firestore.collection('messages');
-  const query = messagesRef.orderBy('createdAt').limit(1000000000000000000000000000);
-  const [messages] = useCollectionData(query,{idField: 'id'});
-  const [formValue , setFormValue] = useState('');
+  const query = messagesRef.orderBy('createdAt').limit(10000);
+  const [messages] = useCollectionData(query, { idField: 'id' });
+  const [formValue, setFormValue] = useState('');
 
 
-  const sendMessage = async(e) => {
+  const sendMessage = async (e) => {
     e.preventDefault();
-    const {uid , photoURL} = auth.currentUser;
+    const { uid, photoURL } = auth.currentUser;
     await messagesRef.add({
       text: formValue,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -82,31 +99,31 @@ function ChatRoom(){
 
     setFormValue('');
 
-    dummy.current.scrollIntoView({behavior:'smooth'});
+    dummy.current.scrollIntoView({ behavior: 'smooth' });
   }
 
-  return(
+  return (
     <div>
       <main>
-        {messages && messages.map(msg => <ChatMessage key = {msg.id} message = {msg}/>)}
+        {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
         <div ref={dummy}></div>
       </main>
-      <form onSubmit = {sendMessage}>
-        <input value = {formValue} onChange = { (e) => setFormValue(e.target.value)}/>
+      <form onSubmit={sendMessage}>
+        <input value={formValue} onChange={(e) => setFormValue(e.target.value)} />
         <button type="submit">Send</button>
       </form>
     </div>
   )
 }
 
-function ChatMessage(props){
-  const {text,uid,photoURL} = props.message;
+function ChatMessage(props) {
+  const { text, uid, photoURL } = props.message;
 
-  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received' ;
+  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
   return (
-    <div className = {`message ${messageClass}`}>
-      <img src={photoURL}/>
+    <div className={`message ${messageClass}`}>
+      <img src={photoURL} />
 
 
       <p>{text}</p>
